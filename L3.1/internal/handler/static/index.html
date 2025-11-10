@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Notification Center</title>
+        <link rel="icon" href="./static/favicon.ico" type="image/x-icon" />
+        <style>
+            body {
+                font-family: "Inter", sans-serif;
+                background: #f3f4f6;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                min-height: 100vh;
+            }
+
+            h1 {
+                margin-top: 40px;
+                color: #111827;
+                font-size: 28px;
+            }
+
+            form {
+                background: #fff;
+                padding: 20px 30px;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                margin: 20px 0;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                width: 360px;
+            }
+
+            input,
+            select,
+            textarea {
+                padding: 10px;
+                border-radius: 8px;
+                border: 1px solid #d1d5db;
+                font-size: 14px;
+                width: 100%;
+            }
+
+            button {
+                background: #2563eb;
+                color: white;
+                border: none;
+                padding: 10px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-weight: bold;
+                transition: background 0.2s;
+            }
+
+            button:hover {
+                background: #1e40af;
+            }
+
+            table {
+                border-collapse: collapse;
+                width: 80%;
+                background: white;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                margin-bottom: 40px;
+            }
+
+            th,
+            td {
+                padding: 12px 16px;
+                border-bottom: 1px solid #e5e7eb;
+                text-align: left;
+            }
+
+            th {
+                background: #f9fafb;
+                color: #374151;
+                font-weight: 600;
+            }
+
+            .status {
+                font-weight: bold;
+                padding: 4px 8px;
+                border-radius: 8px;
+            }
+
+            .Scheduled {
+                background: #e0f2fe;
+                color: #0369a1;
+            }
+            .Sent {
+                background: #dcfce7;
+                color: #166534;
+            }
+            .Failed {
+                background: #fee2e2;
+                color: #991b1b;
+            }
+            .Canceled {
+                background: #fef3c7;
+                color: #92400e;
+            }
+
+            .cancel-btn {
+                background: #ef4444;
+                color: white;
+                padding: 6px 10px;
+                border-radius: 6px;
+                border: none;
+                cursor: pointer;
+            }
+
+            .cancel-btn:hover {
+                background: #b91c1c;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>📬 Notification Center</h1>
+
+        <form id="notifyForm">
+            <input type="text" id="user_id" placeholder="User ID" required />
+            <select id="channel">
+                <option value="0">Native</option>
+                <option value="1">Email</option>
+                <option value="2">Telegram</option>
+            </select>
+            <input
+                type="text"
+                id="recipient"
+                placeholder="Recipient"
+                required
+            />
+            <textarea
+                id="message"
+                placeholder="Message"
+                rows="3"
+                required
+            ></textarea>
+            <input type="datetime-local" id="send_at" required />
+            <button type="submit">Создать уведомление</button>
+        </form>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User</th>
+                    <th>Channel</th>
+                    <th>Recipient</th>
+                    <th>Message</th>
+                    <th>Send At</th>
+                    <th>Status</th>
+                    <th>Retries</th>
+                    <th>Created</th>
+                    <th>Updated</th>
+                    <th>Действие</th>
+                </tr>
+            </thead>
+            <tbody id="notifTableBody"></tbody>
+        </table>
+
+        <script>
+            const API_URL = "http://localhost:8080/notify";
+
+            const statusMap = ["Scheduled", "Sent", "Failed", "Canceled"];
+            const channelMap = ["Native", "Email", "Telegram"];
+
+            async function loadNotifications() {
+                const res = await fetch(API_URL);
+                const data = await res.json();
+
+                const tbody = document.getElementById("notifTableBody");
+                tbody.innerHTML = "";
+
+                data.forEach((n) => {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+            <td>${n.id ?? "-"}</td>
+            <td>${n.user_id}</td>
+            <td>${channelMap[n.channel]}</td>
+            <td>${n.recipient}</td>
+            <td>${n.message}</td>
+            <td>${new Date(n.sent_at).toLocaleString()}</td>
+            <td><span class="status ${statusMap[n.status]}">${
+                        statusMap[n.status]
+                    }</span></td>
+            <td>${n.retry}</td>
+            <td>${new Date(n.created_at).toLocaleString()}</td>
+            <td>${new Date(n.updated_at).toLocaleString()}</td>
+          <td>
+            ${
+                n.status === 0
+                    ? `<button class="cancel-btn" onclick="cancelNotification(${n.id})">Отменить</button>`
+                    : ""
+            }
+          </td>
+        `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            async function cancelNotification(id) {
+                if (!confirm("Отменить уведомление #" + id + "?")) return;
+                await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+                loadNotifications();
+            }
+
+            document
+                .getElementById("notifyForm")
+                .addEventListener("submit", async (e) => {
+                    e.preventDefault();
+
+                    const notif = {
+                        user_id: document.getElementById("user_id").value,
+                        channel: parseInt(
+                            document.getElementById("channel").value
+                        ),
+                        recipient: document.getElementById("recipient").value,
+                        message: document.getElementById("message").value,
+                        sent_at: new Date(
+                            document.getElementById("send_at").value
+                        ).toISOString(),
+                    };
+
+                    const res = await fetch(API_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(notif),
+                    });
+
+                    if (res.ok) {
+                        alert("Уведомление создано!");
+                        e.target.reset();
+                        loadNotifications();
+                    } else {
+                        const err = await res.json();
+                        alert("Ошибка: " + err.error);
+                    }
+                });
+
+            loadNotifications();
+            setInterval(loadNotifications, 5000);
+        </script>
+    </body>
+</html>
