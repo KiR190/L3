@@ -1,0 +1,42 @@
+services:
+  postgres:
+    container_name: short_postgres
+    image: postgres:latest
+    restart: always
+    stop_grace_period: 30s
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ./migrations/0001_init.up.sql:/docker-entrypoint-initdb.d/0001_init.up.sql
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  redis:
+    image: redis:8.2.3-alpine
+    container_name: short_redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT}:6379" 
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD}"]
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    environment:
+      APP_PORT: ${APP_PORT:-8080}
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    restart: on-failure
+
+volumes:
+  pgdata:

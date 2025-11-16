@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Shorty — панель управления</title>
+        <link rel="icon" href="./static/favicon.ico" type="image/x-icon" />
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+        <link rel="stylesheet" href="./static/styles.css" />
+    </head>
+    <body>
+        <div class="container">
+            <header>
+                <div class="logo">S</div>
+                <div>
+                    <h1>Shorty — панель аналитики</h1>
+                    <p class="lead">
+                        Создавайте короткие ссылки и смотрите аналитику по дням,
+                        месяцам и User‑Agent.
+                    </p>
+                </div>
+            </header>
+
+            <div class="grid" style="grid-template-columns: 1fr">
+                <div>
+                    <div class="card" id="analyticsCard">
+                        <h3 id="analyticsTitle">Аналитика — выберите ссылку</h3>
+                        <p class="muted small" id="analyticsSubtitle">
+                            Агрегация по дням, месяцам и User‑Agent.
+                        </p>
+                        <div
+                            style="
+                                display: flex;
+                                gap: 8px;
+                                align-items: center;
+                                margin-top: 10px;
+                            "
+                        >
+                            <select id="granularity" class="small">
+                                <option value="day">Дни</option>
+                                <option value="month">Месяцы</option>
+                            </select>
+                            <label class="muted small"
+                                >Показать топ User‑Agent</label
+                            >
+                            <input
+                                id="topN"
+                                type="number"
+                                value="5"
+                                min="1"
+                                style="
+                                    width: 68px;
+                                    padding: 6px;
+                                    border-radius: 8px;
+                                    background: var(--glass);
+                                    border: 1px solid rgba(255, 255, 255, 0.03);
+                                    color: inherit;
+                                "
+                            />
+                        </div>
+
+                        <div class="analytics">
+                            <div class="card" style="padding: 12px">
+                                <h4 class="small">Клики по периоду</h4>
+                                <canvas
+                                    id="timeseriesChart"
+                                    height="180"
+                                ></canvas>
+                            </div>
+                            <div class="card" style="padding: 12px">
+                                <h4 class="small">User‑Agent (топ)</h4>
+                                <canvas id="uaChart" height="180"></canvas>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 12px">
+                            <h4 class="small">События (последние 200)</h4>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Время</th>
+                                        <th>User-Agent</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="eventsTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top: 14px">
+                        <h3>Создать короткую ссылку</h3>
+                        <p class="muted small">
+                            Вставьте оригинальную URL и нажмите «Сократить».
+                        </p>
+                        <div style="margin-top: 12px" class="form-row">
+                            <input
+                                id="origUrl"
+                                type="text"
+                                placeholder="https://example.com/very/long/url"
+                            />
+                            <input
+                                id="customCode"
+                                type="text"
+                                placeholder="Желаемая ссылка"
+                            />
+                            <button id="createBtn">Сократить</button>
+                        </div>
+                        <div id="createResult" style="margin-top: 12px"></div>
+
+                        <hr
+                            style="
+                                margin: 16px 0;
+                                border: none;
+                                border-top: 1px solid rgba(255, 255, 255, 0.03);
+                            "
+                        />
+
+                        <h4>Последние ссылки</h4>
+                        <div class="links-list" id="latestList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="./static/script.js"></script>
+    </body>
+</html>
