@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>CommentTree</title>
+        <link rel="icon" href="./static/favicon.ico" type="image/x-icon" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="./static/styles.css" />
+        <style>
+            
+        </style>
+    </head>
+    <body>
+        <div class="app">
+            <header>
+                <div class="logo">CT</div>
+                <div>
+                    <h1>CommentTree — панковый UI</h1>
+                    <p class="lead">
+                        Создавайте, отвечайте, ищите и просматривайте дерево
+                        комментариев. Поддерживает пагинацию и сортировку.
+                    </p>
+                </div>
+            </header>
+
+            <div class="controls">
+                <div class="search panel" style="flex: 1">
+                    <input
+                        id="searchInput"
+                        placeholder="Поиск по комментариям..."
+                    />
+                    <button class="btn" id="searchBtn">Найти</button>
+                    <select
+                        id="sortSelect"
+                        style="
+                            margin-left: auto;
+                            background: transparent;
+                            border: 0;
+                            color: var(--muted);
+                        "
+                    >
+                        <option value="desc">Сначала новые</option>
+                        <option value="asc">Сначала старые</option>
+                    </select>
+                </div>
+
+                <div
+                    class="panel"
+                    style="
+                        width: 260px;
+                        display: flex;
+                        gap: 8px;
+                        align-items: center;
+                    "
+                >
+                    <div style="flex: 1">
+                        <div class="small-muted">Страница</div>
+                        <div
+                            style="display: flex; gap: 8px; align-items: center"
+                        >
+                            <button class="page-btn" id="prevPage">◀</button>
+                            <div id="pageInfo" class="small-muted">1</div>
+                            <button class="page-btn" id="nextPage">▶</button>
+                        </div>
+                    </div>
+                    <div style="width: 90px">
+                        <div class="small-muted">На странице</div>
+                        <select id="pageSize">
+                            <option>5</option>
+                            <option selected>10</option>
+                            <option>20</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div
+                    style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 12px;
+                    "
+                >
+                    <strong>Добавить комментарий</strong>
+                    <div class="small-muted">
+                        Root comments only — ответы ниже
+                    </div>
+                </div>
+
+                <div class="composer">
+                    <textarea
+                        id="rootText"
+                        placeholder="Напишите комментарий..."
+                    ></textarea>
+                    <div class="meta">
+                        <input id="rootAuthor" placeholder="Имя" />
+                        <div style="height: 8px"></div>
+                        <button class="btn" id="postRoot">Опубликовать</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="commentContainer" class="comment-list"></div>
+        </div>
+
+        <script src="./static/script.js"></script>
+    </body>
+</html>
