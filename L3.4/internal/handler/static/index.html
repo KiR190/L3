@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Image Processor</title>
+        <link rel="icon" href="./static/favicon.ico" type="image/x-icon" />
+        <link rel="stylesheet" href="./static/styles.css" />
+    </head>
+    <body>
+        <h1>📸 Image Processor</h1>
+        <form id="uploadForm">
+            <div class="row">
+                <label>Файл изображения</label>
+                <input type="file" name="file" required />
+            </div>
+
+            <div class="row">
+                <label>Тип задачи</label>
+                <select name="type" id="taskType">
+                    <option value="resize">Resize</option>
+                    <option value="thumbnail">Thumbnail</option>
+                    <option value="watermark">Watermark</option>
+                </select>
+            </div>
+
+            <div class="row param" id="param-size">
+                <label>Размеры (width / height)</label>
+                <input
+                    type="number"
+                    name="width"
+                    placeholder="Width (px)"
+                    value="800"
+                />
+                <input
+                    type="number"
+                    name="height"
+                    placeholder="Height (px)"
+                    value="800"
+                    style="margin-top: 10px"
+                />
+            </div>
+
+            <div class="row param" id="param-watermark" style="display: none">
+                <label>Текст водяного знака</label>
+                <input type="text" name="text" value="Watermark" />
+            </div>
+
+            <button type="submit">Загрузить</button>
+        </form>
+
+        <h2>Задачи</h2>
+        <div id="list" class="list"></div>
+        <script src="./static/script.js"></script>
+    </body>
+</html>
