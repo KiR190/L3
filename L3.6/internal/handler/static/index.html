@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Tracker</title>
+    
+    <!-- AG-Grid CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@31.0.0/styles/ag-grid.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@31.0.0/styles/ag-theme-alpine-dark.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Compact Header -->
+        <header class="header-compact">
+            <h1>💰 <span>Sales Tracker</span></h1>
+        </header>
+
+        <!-- Analytics Dashboard - Compact -->
+        <section class="analytics-section-compact">
+            <div class="analytics-grid-compact">
+                <div class="stat-card-compact">
+                    <div class="stat-label">💵 Сумма</div>
+                    <div class="stat-value" id="stat-sum">0 ₽</div>
+                </div>
+                <div class="stat-card-compact">
+                    <div class="stat-label">📈 Средняя</div>
+                    <div class="stat-value" id="stat-avg">0 ₽</div>
+                </div>
+                <div class="stat-card-compact">
+                    <div class="stat-label">🔢 Количество</div>
+                    <div class="stat-value" id="stat-count">0</div>
+                </div>
+                <div class="stat-card-compact">
+                    <div class="stat-label">📊 Медиана</div>
+                    <div class="stat-value" id="stat-median">0 ₽</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content Grid -->
+        <div class="main-grid">
+            <!-- Left Column: Form and Filters -->
+            <aside class="sidebar">
+                <!-- Add Item Form -->
+                <section class="form-section-compact">
+                    <h3>➕ Добавить запись</h3>
+                    <form id="add-item-form" class="item-form">
+                        <div class="form-group">
+                            <label for="type">Тип *</label>
+                            <select id="type" name="type" required>
+                                <option value="">Выберите</option>
+                                <option value="income">💰 Доход</option>
+                                <option value="expense">💸 Расход</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="amount">Сумма *</label>
+                            <input type="number" id="amount" name="amount" step="0.01" min="0.01" required placeholder="1000.00">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="currency">Валюта</label>
+                            <select id="currency" name="currency">
+                                <option value="RUB">RUB</option>
+                                <option value="USD">USD</option>
+                                <option value="EUR">EUR</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="date">Дата *</label>
+                            <input type="datetime-local" id="date" name="date" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="category">Категория</label>
+                            <input type="text" id="category" name="category" placeholder="Зарплата">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="description">Описание</label>
+                            <input type="text" id="description" name="description" placeholder="Доп. информация" maxlength="500">
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-block">
+                            ✅ Добавить
+                        </button>
+                    </form>
+                </section>
+
+                <!-- Filters -->
+                <section class="filters-section-compact">
+                    <h3>🔍 Фильтры</h3>
+                    <div class="form-group">
+                        <label for="filter-from">От даты</label>
+                        <input type="date" id="filter-from" name="filter-from">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="filter-to">До даты</label>
+                        <input type="date" id="filter-to" name="filter-to">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="filter-type">Тип</label>
+                        <select id="filter-type" name="filter-type">
+                            <option value="">Все</option>
+                            <option value="income">💰 Доход</option>
+                            <option value="expense">💸 Расход</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-buttons">
+                        <button type="button" id="apply-filters" class="btn btn-secondary btn-block">
+                            🔍 Применить
+                        </button>
+                        <button type="button" id="reset-filters" class="btn btn-outline btn-block">
+                            ↺ Сбросить
+                        </button>
+                    </div>
+                </section>
+            </aside>
+
+            <!-- Right Column: Data Grid -->
+            <main class="main-content">
+                <section class="grid-section-compact">
+                    <div class="grid-header">
+                        <h3>📋 Все записи</h3>
+                        <button type="button" id="export-csv" class="btn btn-success">
+                            📥 Экспорт CSV
+                        </button>
+                    </div>
+                    <div id="myGrid" class="ag-theme-alpine-dark" style="height: 700px; width: 100%;"></div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- AG-Grid JS -->
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community@31.0.0/dist/ag-grid-community.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="/static/app.js"></script>
+</body>
+</html>
