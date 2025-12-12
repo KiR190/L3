@@ -77,7 +77,9 @@ func main() {
 	notifService := service.NewNotificationService(notifRepo, redisCache, notificationQueue, multiSender)
 
 	// ctx := context.Background()
-	notifService.RestoreCacheFromDB(ctx)
+	if err := notifService.RestoreCacheFromDB(ctx); err != nil {
+		log.Printf("Failed to restore cache: %v", err)
+	}
 
 	notificationQueue.SetHandler(func(ctx context.Context, notif models.Notification) error {
 		return notifService.ProcessNotification(ctx, &notif)
@@ -88,15 +90,11 @@ func main() {
 	router := server.NewRouter(notifHandler)
 	httpServer := server.NewHTTPServer(cfg, router)
 
-	log.Printf("Server started at http://localhost:%s", cfg.HTTPPort)
-	if err := httpServer.ListenAndServe(); err != nil {
-		log.Fatalf("Server failed: %v", err)
-	}
-
 	// Graceful shutdown
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
 
+	// Start HTTP server in goroutine
 	go func() {
 		log.Printf("Server started on port %s", cfg.HTTPPort)
 		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -123,6 +121,16 @@ func main() {
 
 	// Останавливаем Telegram
 	telegramSender.Stop()
+
+	// Закрываем Redis кеш
+	if err := redisCache.Close(); err != nil {
+		log.Printf("Cache shutdown error: %v", err)
+	}
+
+	// Закрываем подключение к БД
+	if err := dbConn.Master.Close(); err != nil {
+		log.Printf("Database shutdown error: %v", err)
+	}
 
 	log.Println("Application stopped")
 }

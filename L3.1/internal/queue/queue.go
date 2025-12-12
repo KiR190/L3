@@ -37,8 +37,9 @@ func NewQueue(url string) (*Queue, error) {
 	}
 
 	q := &Queue{
-		conn:    conn,
-		channel: ch,
+		conn:     conn,
+		channel:  ch,
+		stopChan: make(chan struct{}),
 	}
 
 	// Настраиваем очереди

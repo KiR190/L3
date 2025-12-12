@@ -14,6 +14,7 @@ type NotifCache interface {
 	Set(ctx context.Context, notif *models.Notification) error
 	Get(ctx context.Context, id int) (*models.Notification, error)
 	Delete(ctx context.Context, id int) error
+	Close() error
 }
 
 type Cache struct {
@@ -58,4 +59,8 @@ func (c *Cache) Set(ctx context.Context, notif *models.Notification) error {
 func (c *Cache) Delete(ctx context.Context, id int) error {
 	key := strconv.Itoa(id)
 	return c.client.Del(ctx, key)
+}
+
+func (c *Cache) Close() error {
+	return c.client.Close()
 }
