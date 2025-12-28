@@ -1,0 +1,56 @@
+services:
+  postgres:
+    container_name: warehouse_postgres
+    image: postgres:latest
+    restart: always
+    stop_grace_period: 30s
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./migrations/0001_init.up.sql:/docker-entrypoint-initdb.d/0001_init.up.sql
+      - ./migrations/0002_add_auth_users.up.sql:/docker-entrypoint-initdb.d/0002_add_auth_users.up.sql
+    ports:
+      - "${DATABASE_PORT}:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d ${DATABASE_NAME}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      APP_PORT: ${APP_PORT:-8080}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION_HOURS: ${JWT_EXPIRATION_HOURS:-24}
+      DATABASE_HOST: postgres
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    restart: on-failure
+
+  frontend:
+    container_name: warehouse_frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    environment:
+      - VITE_API_URL=http://localhost:3000/api
+    depends_on:
+      - app
+    restart: on-failure
+
+volumes:
+  pgdata:
